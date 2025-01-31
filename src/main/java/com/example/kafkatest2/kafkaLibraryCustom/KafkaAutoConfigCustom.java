@@ -49,21 +49,6 @@ public class KafkaAutoConfigCustom {
     }
 
     @Bean
-    @ConditionalOnMissingBean(KafkaTemplate.class)
-    public KafkaTemplate<?, ?> kafkaTemplate(ProducerFactory<Object, Object> kafkaProducerFactory,
-                                             ProducerListener<Object, Object> kafkaProducerListener,
-                                             ObjectProvider<RecordMessageConverter> messageConverter) {
-        PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-        KafkaTemplate<Object, Object> kafkaTemplate = new KafkaTemplate<>(kafkaProducerFactory);
-        messageConverter.ifUnique(kafkaTemplate::setMessageConverter);
-        map.from(kafkaProducerListener).to(kafkaTemplate::setProducerListener);
-        map.from(this.properties.getTemplate().getDefaultTopic()).to(kafkaTemplate::setDefaultTopic);
-        map.from(this.properties.getTemplate().getTransactionIdPrefix()).to(kafkaTemplate::setTransactionIdPrefix);
-        map.from(this.properties.getTemplate().isObservationEnabled()).to(kafkaTemplate::setObservationEnabled);
-        return kafkaTemplate;
-    }
-
-    @Bean
     @ConditionalOnProperty(name = "spring.kafka.producer.transaction-id-prefix")
     @ConditionalOnMissingBean
     public KafkaTransactionManager<?, ?> kafkaTransactionManager(ProducerFactory<?, ?> producerFactory) {
